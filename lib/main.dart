@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  await Hive.openBox('test');
   runApp(const MyApp());
 }
 
@@ -16,7 +21,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainScreen(),
+      initialRoute: MainScreen.routeName,
+      routes: {
+        MainScreen.routeName: (context) => const MainScreen(),
+        QRScannerScreen.routeName: (context) => const QRScannerScreen(),
+      }
     );
   }
 }
