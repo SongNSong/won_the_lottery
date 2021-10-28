@@ -16,10 +16,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String? gameURL = Hive.box('test').get('games');
-  late Map<String, List<int>> lottoSets;
+  late Map<String, List<int>> lottoSets = {};
   late String _gameRound;
   late String _sellerCode;
-  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
+  final List<String> keyList = ['A', 'B', 'C', 'D', 'E'];
 
   @override
   Widget build(BuildContext context) {
@@ -30,18 +30,13 @@ class _MainScreenState extends State<MainScreen> {
       _gameRound = gameSet[0];
       _sellerCode = gameSet[gameSet.length - 1].substring(12);
 
-      print(_gameRound);
-      print(_sellerCode);
-      print(gameSet.length);
       for (int i = 1; i < gameSet.length; i++) {
         List<int> tempArr = [];
         for (int j = 0; j < 6; j++) {
           int startIndex = j * 2;
           tempArr.add(int.parse(gameSet[i].substring(startIndex, startIndex + 2)));
-          print(tempArr);
         }
-        lottoSets[_keyList[i - 1]] = tempArr;
-        print(lottoSets);
+        lottoSets.addAll({keyList[i - 1]: tempArr}) ;
       }
     }
 
@@ -169,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
               ]),
             ],
           )),
-          Text(gameURL != null ? lottoSets.toString() : '로또번호를 등록해주세요.'),
+          gameURL != null ? Text(lottoSets.toString()) : Text('로또번호를 등록해주세요.'),
         ],
       ),
       floatingActionButton: FloatingActionButton(
