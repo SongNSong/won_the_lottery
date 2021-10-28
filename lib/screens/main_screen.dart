@@ -15,28 +15,35 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   String? gameURL = Hive.box('test').get('games');
-  late Map<String, dynamic> lottoSets;
+  late Map<String, List<int>> lottoSets;
+  late String _gameRound;
+  late String _sellerCode;
+  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
 
   @override
   Widget build(BuildContext context) {
+    late List<String> gameSet;
+    if (gameURL != null) {
+      gameSet = gameURL!.split("v=")[1].split("q");
 
-    // 무식하게 로또 URL 맵에 파싱.
-    if(gameURL != null && gameURL!.contains('http://m.dhlottery.co.kr/?v=')){
-      var numberTrim = gameURL!.split('=');
-      var gameSet = numberTrim.removeAt(1).split('q');
-      lottoSets = {
-        'gameRound' : gameSet[0],
-        'A' : [gameSet[1].substring(0,2), gameSet[1].substring(2,4), gameSet[1].substring(4,6), gameSet[1].substring(6,8), gameSet[1].substring(8,10), gameSet[1].substring(10,12)],
-        'B' : [gameSet[2].substring(0,2), gameSet[2].substring(2,4), gameSet[2].substring(4,6), gameSet[2].substring(6,8), gameSet[2].substring(8,10), gameSet[2].substring(10,12)],
-        'C' : [gameSet[3].substring(0,2), gameSet[3].substring(2,4), gameSet[3].substring(4,6), gameSet[3].substring(6,8), gameSet[3].substring(8,10), gameSet[3].substring(10,12)],
-        'D' : [gameSet[4].substring(0,2), gameSet[4].substring(2,4), gameSet[4].substring(4,6), gameSet[4].substring(6,8), gameSet[4].substring(8,10), gameSet[4].substring(10,12)],
-        'E' : [gameSet[5].substring(0,2), gameSet[5].substring(2,4), gameSet[5].substring(4,6), gameSet[5].substring(6,8), gameSet[5].substring(8,10), gameSet[5].substring(10,12)],
-        '판매처코드' : gameSet[5].substring(12),
-      };
+      _gameRound = gameSet[0];
+      _sellerCode = gameSet[gameSet.length - 1].substring(12);
+
+      print(_gameRound);
+      print(_sellerCode);
+      print(gameSet.length);
+      for (int i = 1; i < gameSet.length; i++) {
+        List<int> tempArr = [];
+        for (int j = 0; j < 6; j++) {
+          int startIndex = j * 2;
+          tempArr.add(int.parse(gameSet[i].substring(startIndex, startIndex + 2)));
+          print(tempArr);
+        }
+        lottoSets[_keyList[i - 1]] = tempArr;
+        print(lottoSets);
+      }
     }
-
 
     return Scaffold(
       appBar: AppBar(
@@ -168,8 +175,7 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (await Permission.storage.request().isGranted) {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, QRScannerScreen.routeName, (route) => false);
+              Navigator.pushNamedAndRemoveUntil(context, QRScannerScreen.routeName, (route) => false);
               // Either the permission was already granted before or the user just granted it.
             } else {
               AppSettings.openAppSettings();
