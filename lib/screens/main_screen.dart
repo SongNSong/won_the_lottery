@@ -2,6 +2,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:won_the_lottery/models/lotto_sheet.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/widgets/lottery_round_widget.dart';
 
@@ -15,31 +16,25 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String? gameURL = Hive.box('test').get('games');
-  late Map<String, List<int>> lottoSets = {};
-  late String _gameRound;
-  late String _sellerCode;
-  final List<String> keyList = ['A', 'B', 'C', 'D', 'E'];
+  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
+  final String? _gameURL = Hive.box('test').get('games');
+
+  LottoSheet getLottoSheet() {
+    List<String> gameSet = _gameURL!.split("v=")[1].split("q");
+    Map<String, List<int>> lottoSets = {};
+    for (int i = 1; i < gameSet.length; i++) {
+      List<int> tempArr = [];
+      for (int j = 0; j < 6; j++) {
+        int startIndex = j * 2;
+        tempArr.add(int.parse(gameSet[i].substring(startIndex, startIndex + 2)));
+      }
+      lottoSets.addAll({_keyList[i - 1]: tempArr});
+    }
+    return LottoSheet(gameRound: gameSet[0], sellerCode: gameSet[gameSet.length - 1].substring(12), lottoSets: lottoSets);
+  }
 
   @override
   Widget build(BuildContext context) {
-    late List<String> gameSet;
-    if (gameURL != null) {
-      gameSet = gameURL!.split("v=")[1].split("q");
-
-      _gameRound = gameSet[0];
-      _sellerCode = gameSet[gameSet.length - 1].substring(12);
-
-      for (int i = 1; i < gameSet.length; i++) {
-        List<int> tempArr = [];
-        for (int j = 0; j < 6; j++) {
-          int startIndex = j * 2;
-          tempArr.add(int.parse(gameSet[i].substring(startIndex, startIndex + 2)));
-        }
-        lottoSets.addAll({keyList[i - 1]: tempArr}) ;
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Won the Lottery'),
@@ -164,12 +159,12 @@ class _MainScreenState extends State<MainScreen> {
               ]),
             ],
           )),
-          gameURL != null ? Text(lottoSets.toString()) : Text('로또번호를 등록해주세요.'),
+          _gameURL != null ? Text(getLottoSheet().toString()) : Text('로또번호를 등록해주세요.'),
         ],
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            if (await Permission.storage.request().isGranted) {
+            if (await Permission.camera.request().isGranted) {
               Navigator.pushNamedAndRemoveUntil(context, QRScannerScreen.routeName, (route) => false);
               // Either the permission was already granted before or the user just granted it.
             } else {

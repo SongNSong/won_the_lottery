@@ -17,15 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: MainScreen.routeName,
-      routes: {
-        MainScreen.routeName: (context) => const MainScreen(),
-        QRScannerScreen.routeName: (context) => const QRScannerScreen(),
-      }
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        initialRoute: MainScreen.routeName,
+        routes: {
+          MainScreen.routeName: (context) => const MainScreen(),
+          QRScannerScreen.routeName: (context) => const QRScannerScreen(),
+        });
   }
 }
