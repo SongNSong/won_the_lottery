@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:won_the_lottery/models/lotto_sheet.dart';
+import 'package:won_the_lottery/models/lotto_sheets_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -17,10 +19,11 @@ class QRScannerScreen extends StatefulWidget {
 }
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
-  Barcode? result;
+  Barcode? lottoURL;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  late String lottoURL;
+  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
+
 
   @override
   void reassemble() {
@@ -31,6 +34,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       controller!.resumeCamera();
     }
   }
+
+  LottoSheet getLottoSheet(String lottoURL) {
+      List<String> lottoSets = lottoURL.split("v=")[1].split("q");
+      Map<String, List<int>> lottoGames = {};
+      for (int i = 1; i < lottoSets.length; i++) {
+        List<int> selectedNumbers = [];
+        for (int j = 0; j < 6; j++) {
+          int startIndex = j * 2;
+          selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
+        }
+        lottoGames.addAll({_keyList[i - 1]: selectedNumbers});
+      }
+      return LottoSheet(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), lottoSets: lottoGames);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +71,15 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           Expanded(
             flex: 1,
             child: Center(
-              child: (result != null && result!.code.toString().contains('http://m.dhlottery.co.kr/?v=')) //로또QR외 QR 력불가 로직 추가
+              child: (lottoURL != null && lottoURL!.code.contains('http://m.dhlottery.co.kr/?')) //로또QR외 QR 력불가 로직 추가
                   ? Column(
                       children: [
                         ElevatedButton(
-                            onPressed: () {
-                              lottoURL = result!.code.toString();
-                              Hive.box('test').put('games', lottoURL);
+                            onPressed: () async {
+                              var box = Hive.box<LottoSheetsModel>('lottoSheets');
+
+                              LottoSheet lottoSheet1 = getLottoSheet(lottoURL!.code);
+                              await box.add(LottoSheetsModel(gameRound: lottoSheet1.gameRound, sellerCode: lottoSheet1.sellerCode, lottoSheetList: [lottoSheet1.lottoSets]));
                               Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
                             },
                             child: const Text('등록하기')),
@@ -100,7 +120,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       setState(() {
-        result = scanData;
+        lottoURL = scanData;
       });
     });
   }

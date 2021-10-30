@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:won_the_lottery/models/lotto_sheet.dart';
+import 'package:won_the_lottery/models/lotto_sheets_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/widgets/lottery_round_widget.dart';
+import 'package:won_the_lottery/widgets/lotto_card.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -16,22 +18,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
-  final String? _gameURL = Hive.box('test').get('games');
-
-  LottoSheet getLottoSheet() {
-    List<String> gameSet = _gameURL!.split("v=")[1].split("q");
-    Map<String, List<int>> lottoSets = {};
-    for (int i = 1; i < gameSet.length; i++) {
-      List<int> tempArr = [];
-      for (int j = 0; j < 6; j++) {
-        int startIndex = j * 2;
-        tempArr.add(int.parse(gameSet[i].substring(startIndex, startIndex + 2)));
-      }
-      lottoSets.addAll({_keyList[i - 1]: tempArr});
-    }
-    return LottoSheet(gameRound: gameSet[0], sellerCode: gameSet[gameSet.length - 1].substring(12), lottoSets: lottoSets);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,17 +145,34 @@ class _MainScreenState extends State<MainScreen> {
               ]),
             ],
           )),
-          _gameURL != null ? Text(getLottoSheet().toString()) : Text('로또번호를 등록해주세요.'),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: Hive.box<LottoSheetsModel>('lottoSheets').listenable(),
+              builder: (context, Box<LottoSheetsModel> lottoBox, child) {
+                return ListView.separated(itemBuilder: (_, index) {
+                  final item = lottoBox.getAt(index);
+
+                  if(item != null) {
+                    return LottoCard(
+                      gameRound: item.gameRound,
+                      sellerCode: item.sellerCode,
+                      lottoSets: item.lottoSheetList,
+                    );
+                  } else {
+                    return const Text('QR을 등록해주세요.');
+                  }
+                }, separatorBuilder: (_, index) {
+                  return const SizedBox(height: 5,);
+                }, itemCount: lottoBox.length);
+              },
+            ),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            if (await Permission.camera.request().isGranted) {
               Navigator.pushNamedAndRemoveUntil(context, QRScannerScreen.routeName, (route) => false);
-              // Either the permission was already granted before or the user just granted it.
-            } else {
-              AppSettings.openAppSettings();
-            }
+            // }
             // 1. 카메라기능 오픈
             // 2. QR 스캔 - URL 받아오기
             // 3. 번호 저장
