@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:won_the_lottery/models/lotto_sheet.dart';
-import 'package:won_the_lottery/models/lotto_sheets_model.dart';
+import 'package:won_the_lottery/models/game.dart';
+import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -35,18 +35,18 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     }
   }
 
-  LottoSheet getLottoSheet(String lottoURL) {
+  LottoSheetModel getLottoSheet(String lottoURL) {
       List<String> lottoSets = lottoURL.split("v=")[1].split("q");
-      Map<String, List<int>> lottoGames = {};
+      List<Game> gameSet = [];
       for (int i = 1; i < lottoSets.length; i++) {
         List<int> selectedNumbers = [];
         for (int j = 0; j < 6; j++) {
           int startIndex = j * 2;
           selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
         }
-        lottoGames.addAll({_keyList[i - 1]: selectedNumbers});
+        gameSet.add(Game(code: _keyList[i - 1], numbers: selectedNumbers));
       }
-      return LottoSheet(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), lottoSets: lottoGames);
+      return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet);
   }
 
 
@@ -76,10 +76,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                       children: [
                         ElevatedButton(
                             onPressed: () async {
-                              var box = Hive.box<LottoSheetsModel>('lottoSheets');
+                              var box = Hive.box<LottoSheetModel>('lottoSheet');
 
-                              LottoSheet lottoSheet1 = getLottoSheet(lottoURL!.code);
-                              await box.add(LottoSheetsModel(gameRound: lottoSheet1.gameRound, sellerCode: lottoSheet1.sellerCode, lottoSheetList: [lottoSheet1.lottoSets]));
+                              LottoSheetModel lottoSheet1 = getLottoSheet(lottoURL!.code);
+                              await box.add(lottoSheet1);
                               Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
                             },
                             child: const Text('등록하기')),

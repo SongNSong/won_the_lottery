@@ -2,8 +2,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:won_the_lottery/models/lotto_sheet.dart';
-import 'package:won_the_lottery/models/lotto_sheets_model.dart';
+import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/widgets/lottery_round_widget.dart';
 import 'package:won_the_lottery/widgets/lotto_card.dart';
@@ -18,7 +17,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,23 +145,24 @@ class _MainScreenState extends State<MainScreen> {
           )),
           Expanded(
             child: ValueListenableBuilder(
-              valueListenable: Hive.box<LottoSheetsModel>('lottoSheets').listenable(),
-              builder: (context, Box<LottoSheetsModel> lottoBox, child) {
-                return ListView.separated(itemBuilder: (_, index) {
-                  final item = lottoBox.getAt(index);
+              valueListenable: Hive.box<LottoSheetModel>('lottoSheet').listenable(),
+              builder: (context, Box<LottoSheetModel> lottoBox, child) {
+                return ListView.separated(
+                    itemBuilder: (_, index) {
+                      final item = lottoBox.getAt(index);
 
-                  if(item != null) {
-                    return LottoCard(
-                      gameRound: item.gameRound,
-                      sellerCode: item.sellerCode,
-                      lottoSets: item.lottoSheetList,
-                    );
-                  } else {
-                    return const Text('QR을 등록해주세요.');
-                  }
-                }, separatorBuilder: (_, index) {
-                  return const SizedBox(height: 5,);
-                }, itemCount: lottoBox.length);
+                      if (item != null) {
+                        return LottoCard(index: index, lottoSheet: item);
+                      } else {
+                        return const Text('QR을 등록해주세요.');
+                      }
+                    },
+                    separatorBuilder: (_, index) {
+                      return const SizedBox(
+                        height: 5,
+                      );
+                    },
+                    itemCount: lottoBox.length);
               },
             ),
           )
@@ -171,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-              Navigator.pushNamedAndRemoveUntil(context, QRScannerScreen.routeName, (route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, QRScannerScreen.routeName, (route) => false);
             // }
             // 1. 카메라기능 오픈
             // 2. QR 스캔 - URL 받아오기

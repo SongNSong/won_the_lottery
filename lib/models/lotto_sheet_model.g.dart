@@ -1,30 +1,30 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'lotto_sheets_model.dart';
+part of 'lotto_sheet_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class LottoSheetsModelAdapter extends TypeAdapter<LottoSheetsModel> {
+class LottoSheetModelAdapter extends TypeAdapter<LottoSheetModel> {
   @override
   final int typeId = 1;
 
   @override
-  LottoSheetsModel read(BinaryReader reader) {
+  LottoSheetModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return LottoSheetsModel(
+    return LottoSheetModel(
       gameRound: fields[0] as String,
       sellerCode: fields[1] as String,
-      lottoSheetList: (fields[2] as List).cast<dynamic>(),
+      gameSet: (fields[2] as List).cast<Game>(),
     );
   }
 
   @override
-  void write(BinaryWriter writer, LottoSheetsModel obj) {
+  void write(BinaryWriter writer, LottoSheetModel obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
@@ -32,7 +32,7 @@ class LottoSheetsModelAdapter extends TypeAdapter<LottoSheetsModel> {
       ..writeByte(1)
       ..write(obj.sellerCode)
       ..writeByte(2)
-      ..write(obj.lottoSheetList);
+      ..write(obj.gameSet);
   }
 
   @override
@@ -41,7 +41,7 @@ class LottoSheetsModelAdapter extends TypeAdapter<LottoSheetsModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LottoSheetsModelAdapter &&
+      other is LottoSheetModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
