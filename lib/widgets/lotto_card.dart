@@ -33,10 +33,11 @@ class LottoCard extends StatelessWidget {
             Text(index.toString()),
             Text(lottoSheet.gameRound),
             Text(lottoSheet.sellerCode),
-            IconButton(onPressed: (){
-              Hive.box<LottoSheetModel>('lottoSheet').deleteAt(index);
-
-            }, icon: const Icon(Icons.close))
+            IconButton(
+                onPressed: () {
+                  Hive.box<LottoSheetModel>('lottoSheet').deleteAt(index);
+                },
+                icon: const Icon(Icons.close))
           ],
         ),
         Table(

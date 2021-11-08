@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/game.dart';
+import 'package:won_the_lottery/models/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:hive/hive.dart';
@@ -21,15 +23,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        initialRoute: MainScreen.routeName,
-        routes: {
-          MainScreen.routeName: (context) => const MainScreen(),
-          QRScannerScreen.routeName: (context) => const QRScannerScreen(),
-        });
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => GameRound(),
+      child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          initialRoute: MainScreen.routeName,
+          routes: {
+            MainScreen.routeName: (context) => const MainScreen(),
+            QRScannerScreen.routeName: (context) => const QRScannerScreen(),
+          }),
+    );
   }
 }

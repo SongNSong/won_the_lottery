@@ -1,7 +1,9 @@
-import 'package:app_settings/app_settings.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:won_the_lottery/models/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/widgets/lottery_round_widget.dart';
@@ -19,6 +21,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
+    String? selectedGameRound = Provider.of<GameRound>(context).gameRound;
+    print(selectedGameRound);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Won the Lottery'),
@@ -27,12 +32,13 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           LotteryRoundWidget(),
           Card(
-              child: Column(
-            children: [
-              Text('미추첨 복권입니다.'),
-              Text('20시 45분 추첨예정'),
-            ],
-          )),
+            child: Column(
+              children: [
+                Text(selectedGameRound?? '미추첨복권'),
+                Text('20시 45분 추첨예정'),
+              ],
+            ),
+          ),
           Card(
               child: Table(
             children: [
@@ -147,9 +153,13 @@ class _MainScreenState extends State<MainScreen> {
             child: ValueListenableBuilder(
               valueListenable: Hive.box<LottoSheetModel>('lottoSheet').listenable(),
               builder: (context, Box<LottoSheetModel> lottoBox, child) {
+                // 필터부분
+                List<LottoSheetModel>? filteredLottoBox =
+                    lottoBox.values.where((lottoSheet) => lottoSheet.gameRound == selectedGameRound).toList();
+
                 return ListView.separated(
                     itemBuilder: (_, index) {
-                      final item = lottoBox.getAt(index);
+                      final LottoSheetModel? item = filteredLottoBox[index];
 
                       if (item != null) {
                         return LottoCard(index: index, lottoSheet: item);
@@ -162,7 +172,7 @@ class _MainScreenState extends State<MainScreen> {
                         height: 5,
                       );
                     },
-                    itemCount: lottoBox.length);
+                    itemCount: filteredLottoBox.length);
               },
             ),
           )
