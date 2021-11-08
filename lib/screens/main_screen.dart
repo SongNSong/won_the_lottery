@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
-import 'package:won_the_lottery/widgets/lottery_round_widget.dart';
-import 'package:won_the_lottery/widgets/lotto_card.dart';
+import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
+import 'package:won_the_lottery/widgets/components/lotto_card.dart';
+import 'package:won_the_lottery/widgets/lotto_card_list.dart';
+import 'package:won_the_lottery/widgets/winning_numbers_card.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -22,161 +24,27 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     String? selectedGameRound = Provider.of<GameRound>(context).gameRound;
-    print(selectedGameRound);
+
+    var box = Hive.box<LottoSheetModel>('lottoSheet');
+    // box.add(LottoSheetModel(gameRound: '111', sellerCode: '12233', gameSet: []));
+    // box.add(LottoSheetModel(gameRound: '113', sellerCode: '12233', gameSet: []));
+    // box.add(LottoSheetModel(gameRound: '142', sellerCode: '12233', gameSet: []));
+    // box.add(LottoSheetModel(gameRound: '155', sellerCode: '12233', gameSet: []))
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Won the Lottery'),
       ),
       body: Column(
-        children: [
-          LotteryRoundWidget(),
-          Card(
-            child: Column(
-              children: [
-                Text(selectedGameRound?? '미추첨복권'),
-                Text('20시 45분 추첨예정'),
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: box.isEmpty
+            ? [const Text('QR을 입력해주세요.', textAlign: TextAlign.center,)]
+            : [
+                LottoRoundWidget(),
+                WinningNumbersCard(),
+                LottoCardList(),
               ],
-            ),
-          ),
-          Card(
-              child: Table(
-            children: [
-              TableRow(children: [
-                Container(
-                  child: Text('A'),
-                ),
-                Container(
-                  child: Text('당첨'),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                    ],
-                  ),
-                )
-              ]),
-              TableRow(children: [
-                Container(
-                  child: Text('A'),
-                ),
-                Container(
-                  child: Text('당첨'),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                    ],
-                  ),
-                )
-              ]),
-              TableRow(children: [
-                Container(
-                  child: Text('A'),
-                ),
-                Container(
-                  child: Text('당첨'),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                    ],
-                  ),
-                )
-              ]),
-              TableRow(children: [
-                Container(
-                  child: Text('A'),
-                ),
-                Container(
-                  child: Text('당첨'),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                    ],
-                  ),
-                )
-              ]),
-              TableRow(children: [
-                Container(
-                  child: Text('A'),
-                ),
-                Container(
-                  child: Text('당첨'),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                      Container(child: Text('00')),
-                    ],
-                  ),
-                )
-              ]),
-            ],
-          )),
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: Hive.box<LottoSheetModel>('lottoSheet').listenable(),
-              builder: (context, Box<LottoSheetModel> lottoBox, child) {
-                // 필터부분
-                List<LottoSheetModel>? filteredLottoBox =
-                    lottoBox.values.where((lottoSheet) => lottoSheet.gameRound == selectedGameRound).toList();
-
-                return ListView.separated(
-                    itemBuilder: (_, index) {
-                      final LottoSheetModel? item = filteredLottoBox[index];
-
-                      if (item != null) {
-                        return LottoCard(index: index, lottoSheet: item);
-                      } else {
-                        return const Text('QR을 등록해주세요.');
-                      }
-                    },
-                    separatorBuilder: (_, index) {
-                      return const SizedBox(
-                        height: 5,
-                      );
-                    },
-                    itemCount: filteredLottoBox.length);
-              },
-            ),
-          )
-        ],
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {

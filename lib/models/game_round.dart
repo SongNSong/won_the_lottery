@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 
 class GameRound extends ChangeNotifier {
-  String? _gameRound = '0986';
+  String? _gameRound;
 
   String? get gameRound {
     return _gameRound;
@@ -19,7 +19,7 @@ class GameRound extends ChangeNotifier {
   List<int> winningNumbers() {
     return getWinningNumbers() as List<int>;
   }
-  Future getWinningNumbers() async {
+  Future<List<int>> getWinningNumbers() async {
     http.Response response =
     await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$_gameRound"));
 

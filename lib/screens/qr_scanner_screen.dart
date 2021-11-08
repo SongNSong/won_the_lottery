@@ -6,6 +6,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:won_the_lottery/models/game.dart';
+import 'package:won_the_lottery/models/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 
@@ -80,6 +81,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
                               LottoSheetModel lottoSheet1 = getLottoSheet(lottoURL!.code);
                               await box.add(lottoSheet1);
+                              GameRound().updateGameRound(lottoSheet1.gameRound);
                               Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
                             },
                             child: const Text('등록하기')),
