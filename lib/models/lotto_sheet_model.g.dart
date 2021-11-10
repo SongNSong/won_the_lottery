@@ -20,19 +20,22 @@ class LottoSheetModelAdapter extends TypeAdapter<LottoSheetModel> {
       gameRound: fields[0] as String,
       sellerCode: fields[1] as String,
       gameSet: (fields[2] as List).cast<Game>(),
+      winningNumbers: (fields[3] as List?)?.cast<int>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, LottoSheetModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.gameRound)
       ..writeByte(1)
       ..write(obj.sellerCode)
       ..writeByte(2)
-      ..write(obj.gameSet);
+      ..write(obj.gameSet)
+      ..writeByte(3)
+      ..write(obj.winningNumbers);
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/game.dart';
-import 'package:won_the_lottery/models/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:hive/hive.dart';

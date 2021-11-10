@@ -35,6 +35,7 @@ class GameRound extends ChangeNotifier {
         winningNumbers.add(data['drwtNo4']);
         winningNumbers.add(data['drwtNo5']);
         winningNumbers.add(data['drwtNo6']);
+        winningNumbers.add(data['bnusNo']);
 
         print(winningNumbers.toString());
       }

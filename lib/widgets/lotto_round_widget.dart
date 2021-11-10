@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/models/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 
 class LottoRoundWidget extends StatelessWidget {
@@ -25,7 +25,7 @@ class LottoRoundWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('로또 6/45 제 ${gameRound.gameRound}'),
+                  const Text('로또 6/45 제 '),
                   DropdownButton<String>(
                     value: gameRound.gameRound,
                     items: gameRoundList
@@ -35,6 +35,7 @@ class LottoRoundWidget extends StatelessWidget {
                       gameRound.updateGameRound(selectedGameRound!);
                     },
                   ),
+                  const Text(' 회차'),
                 ],
               ),
               //TODO: 미추첨 복권일 경우 추첨시간 표시

@@ -9,11 +9,12 @@ class LottoCard extends StatelessWidget {
 
   const LottoCard({Key? key, required this.index, required this.lottoSheet}) : super(key: key);
 
-  List<TableRow> generateGameRow(List<Game> gameSet) {
+  List<TableRow> generateGameRow(List<Game> gameSet, List<int>? winningNumbers) {
     return gameSet
         .map(
           (game) => TableRow(children: [
             Text(game.code),
+            Text(winningNumbers.toString()),
             Row(
               children: game.numbers.map((int num) => Text('${num.toString()} ')).toList(),
             ),
@@ -41,7 +42,7 @@ class LottoCard extends StatelessWidget {
           ],
         ),
         Table(
-          children: generateGameRow(lottoSheet.gameSet),
+          children: generateGameRow(lottoSheet.gameSet, lottoSheet.winningNumbers),
         )
       ],
     ));

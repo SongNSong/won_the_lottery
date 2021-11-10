@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/models/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
@@ -23,8 +23,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    String? selectedGameRound = Provider.of<GameRound>(context).gameRound;
-
     var box = Hive.box<LottoSheetModel>('lottoSheet');
     // box.add(LottoSheetModel(gameRound: '111', sellerCode: '12233', gameSet: []));
     // box.add(LottoSheetModel(gameRound: '113', sellerCode: '12233', gameSet: []));

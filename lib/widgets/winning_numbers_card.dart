@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/models/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round.dart';
 
 class WinningNumbersCard extends StatefulWidget {
 
@@ -21,11 +21,13 @@ class _WinningNumbersCardState extends State<WinningNumbersCard> {
                   future: gameRound.getWinningNumbers(),
                   builder: (BuildContext context, AsyncSnapshot snapshot){
                     if(!snapshot.hasData) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     } else if(snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
-                    } else {
+                    } else if(snapshot.data != []){
                       return Text('${snapshot.data}');
+                    } else {
+                      return const Text('미추첨 회차입니다.');
                     }
                   },),
               ]
