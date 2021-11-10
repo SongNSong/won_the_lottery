@@ -1,13 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
+import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
-import 'package:won_the_lottery/widgets/components/lotto_card.dart';
 import 'package:won_the_lottery/widgets/lotto_card_list.dart';
 import 'package:won_the_lottery/widgets/winning_numbers_card.dart';
 
@@ -21,13 +18,20 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  var box = Hive.box<LottoSheetModel>('lottoSheet');
+
+  @override
+  void initState() {
+    super.initState();
+
+    // provider에 값 초기화를 위해 사용
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      Provider.of<GameRound>(context, listen: false).updateGameRound(box.values.last.gameRound);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    var box = Hive.box<LottoSheetModel>('lottoSheet');
-    // box.add(LottoSheetModel(gameRound: '111', sellerCode: '12233', gameSet: []));
-    // box.add(LottoSheetModel(gameRound: '113', sellerCode: '12233', gameSet: []));
-    // box.add(LottoSheetModel(gameRound: '142', sellerCode: '12233', gameSet: []));
-    // box.add(LottoSheetModel(gameRound: '155', sellerCode: '12233', gameSet: []))
 
     return Scaffold(
       appBar: AppBar(
@@ -39,9 +43,9 @@ class _MainScreenState extends State<MainScreen> {
         children: box.isEmpty
             ? [const Text('QR을 입력해주세요.', textAlign: TextAlign.center,)]
             : [
-                LottoRoundWidget(),
-                WinningNumbersCard(),
-                LottoCardList(),
+                const LottoRoundWidget(),
+                const WinningNumbersCard(),
+                const LottoCardList(),
               ],
       ),
       floatingActionButton: FloatingActionButton(

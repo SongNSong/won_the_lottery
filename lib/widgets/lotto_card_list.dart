@@ -7,13 +7,15 @@ import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/widgets/components/lotto_card.dart';
 
 class LottoCardList extends StatelessWidget {
+  const LottoCardList({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: ValueListenableBuilder(
         valueListenable: Hive.box<LottoSheetModel>('lottoSheet').listenable(),
         builder: (context, Box<LottoSheetModel> lottoBox, child) {
-          // 필터부분
+          // 회차 필터
           List<LottoSheetModel>? filteredLottoBox =
           lottoBox.values.where((lottoSheet) => lottoSheet.gameRound == Provider.of<GameRound>(context).gameRound).toList();
 

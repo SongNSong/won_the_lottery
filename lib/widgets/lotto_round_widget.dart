@@ -4,7 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 
-class LottoRoundWidget extends StatelessWidget {
+class LottoRoundWidget extends StatefulWidget {
+
+  const LottoRoundWidget({Key? key}) : super(key: key);
+
+  @override
+  State<LottoRoundWidget> createState() => _LottoRoundWidgetState();
+}
+
+class _LottoRoundWidgetState extends State<LottoRoundWidget> {
   late List<String> gameRoundList = [];
 
   @override
@@ -27,7 +35,7 @@ class LottoRoundWidget extends StatelessWidget {
                 children: [
                   const Text('로또 6/45 제 '),
                   DropdownButton<String>(
-                    value: gameRound.gameRound,
+                    value: gameRoundList.last,
                     items: gameRoundList
                         .map((gameRound) => DropdownMenuItem<String>(child: Text(gameRound), value: gameRound))
                         .toList(),

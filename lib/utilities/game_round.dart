@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-
 class GameRound extends ChangeNotifier {
   String? _gameRound;
 
@@ -16,12 +15,9 @@ class GameRound extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<int> winningNumbers() {
-    return getWinningNumbers() as List<int>;
-  }
   Future<List<int>> getWinningNumbers() async {
     http.Response response =
-    await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$_gameRound"));
+        await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$_gameRound"));
 
     List<int> winningNumbers = [];
 
@@ -36,8 +32,6 @@ class GameRound extends ChangeNotifier {
         winningNumbers.add(data['drwtNo5']);
         winningNumbers.add(data['drwtNo6']);
         winningNumbers.add(data['bnusNo']);
-
-        print(winningNumbers.toString());
       }
     } else {
       print(response.statusCode);

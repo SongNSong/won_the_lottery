@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -10,7 +9,6 @@ import 'package:won_the_lottery/models/game.dart';
 import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
-import 'package:http/http.dart' as http;
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -53,32 +51,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet);
   }
 
-  Future<List<int>> getWinningNumbers(String gameRound) async {
-    http.Response response =
-    await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$gameRound"));
-
-    List<int> winningNumbers = [];
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-
-      if (data['returnValue'].toString() == 'success') {
-        winningNumbers.add(data['drwtNo1']);
-        winningNumbers.add(data['drwtNo2']);
-        winningNumbers.add(data['drwtNo3']);
-        winningNumbers.add(data['drwtNo4']);
-        winningNumbers.add(data['drwtNo5']);
-        winningNumbers.add(data['drwtNo6']);
-
-        print(winningNumbers.toString());
-      }
-    } else {
-      print(response.statusCode);
-    }
-    return winningNumbers;
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,18 +79,18 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                             onPressed: () async {
                               var box = Hive.box<LottoSheetModel>('lottoSheet');
                               LottoSheetModel lottoSheet = getLottoSheet(lottoURL!.code);
-
-                              List<int>? winningNumbers = await getWinningNumbers(lottoSheet.gameRound);
+                              GameRound thisGameRound = GameRound();
+                              thisGameRound.updateGameRound(lottoSheet.gameRound);
+                              List<int>? winningNumbers = await thisGameRound.getWinningNumbers();
                               lottoSheet.winningNumbers = winningNumbers;
 
                               await box.add(lottoSheet);
-                              GameRound().updateGameRound(lottoSheet.gameRound);
                               Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
                             },
                             child: const Text('등록하기')),
                       ],
                     )
-                  : Text('로또 QR을 스캔해주세요.'),
+                  : const Text('로또 QR을 스캔해주세요.'),
             ),
           )
         ],
@@ -144,7 +116,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('no Permission')),
+        const SnackBar(content: Text('no Permission')),
       );
     }
   }

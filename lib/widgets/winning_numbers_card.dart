@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/utilities/game_round.dart';
 
 class WinningNumbersCard extends StatefulWidget {
+  const WinningNumbersCard({Key? key}) : super(key: key);
+
 
   @override
   _WinningNumbersCardState createState() => _WinningNumbersCardState();
@@ -16,7 +18,7 @@ class _WinningNumbersCardState extends State<WinningNumbersCard> {
         return Card(
           child: Column(
               children: [
-                Text('회차: ${gameRound.gameRound}'),
+                const Text('당첨번호'),
                 FutureBuilder(
                   future: gameRound.getWinningNumbers(),
                   builder: (BuildContext context, AsyncSnapshot snapshot){
