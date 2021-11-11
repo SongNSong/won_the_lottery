@@ -26,7 +26,9 @@ class _MainScreenState extends State<MainScreen> {
 
     // provider에 값 초기화를 위해 사용
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      Provider.of<GameRound>(context, listen: false).updateGameRound(box.values.last.gameRound);
+      if(box.isNotEmpty) {
+        Provider.of<GameRound>(context, listen: false).updateGameRound(box.values.last.gameRound);
+      }
     });
   }
 

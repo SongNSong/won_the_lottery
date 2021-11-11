@@ -9,6 +9,7 @@ import 'package:won_the_lottery/models/game.dart';
 import 'package:won_the_lottery/utilities/game_round.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -24,6 +25,92 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
+  late FToast fToast;
+
+  @override
+  void initState(){
+    super.initState();
+    fToast = FToast();
+    fToast.init(context);
+  }
+
+  _showSuccessToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.greenAccent,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("또 등록 성공"),
+        ],
+      ),
+    );
+
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
+
+    // Custom Toast Position
+    // fToast.showToast(
+    //     child: toast,
+    //     toastDuration: const Duration(seconds: 2),
+    //     positionedToastBuilder: (context, child) {
+    //       return Positioned(
+    //         child: child,
+    //         top: 16.0,
+    //         left: 16.0,
+    //       );
+    //     });
+  }
+
+  _showFailToast() {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.redAccent,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.close),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text("이미 등록된 로또입니다."),
+        ],
+      ),
+    );
+
+
+    fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+    );
+
+    // Custom Toast Position
+    // fToast.showToast(
+    //     child: toast,
+    //     toastDuration: const Duration(seconds: 2),
+    //     positionedToastBuilder: (context, child) {
+    //       return Positioned(
+    //         child: child,
+    //         top: 16.0,
+    //         left: 16.0,
+    //       );
+    //     });
+  }
 
 
   @override
@@ -37,19 +124,21 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   }
 
   LottoSheetModel getLottoSheet(String lottoURL) {
-      List<String> lottoSets = lottoURL.split("v=")[1].split("q");
-      List<Game> gameSet = [];
-      for (int i = 1; i < lottoSets.length; i++) {
-        List<int> selectedNumbers = [];
-        for (int j = 0; j < 6; j++) {
-          int startIndex = j * 2;
-          selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
-        }
-        gameSet.add(Game(code: _keyList[i - 1], numbers: selectedNumbers));
+    List<String> lottoSets = lottoURL.split("v=")[1].split("q");
+    List<Game> gameSet = [];
+    for (int i = 1; i < lottoSets.length; i++) {
+      List<int> selectedNumbers = [];
+      for (int j = 0; j < 6; j++) {
+        int startIndex = j * 2;
+        selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
       }
+      gameSet.add(Game(code: _keyList[i - 1], numbers: selectedNumbers));
+    }
 
-      return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet);
+    return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet, url: lottoURL);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +168,24 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                             onPressed: () async {
                               var box = Hive.box<LottoSheetModel>('lottoSheet');
                               LottoSheetModel lottoSheet = getLottoSheet(lottoURL!.code);
-                              GameRound thisGameRound = GameRound();
-                              thisGameRound.updateGameRound(lottoSheet.gameRound);
-                              List<int>? winningNumbers = await thisGameRound.getWinningNumbers();
-                              lottoSheet.winningNumbers = winningNumbers;
 
-                              await box.add(lottoSheet);
-                              Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
+                              if(box.values.where((element) => element.url == lottoURL!.code).toList().isEmpty) {
+                                GameRound thisGameRound = GameRound();
+                                thisGameRound.updateGameRound(lottoSheet.gameRound);
+                                List<int>? winningNumbers = await thisGameRound.getWinningNumbers();
+                                lottoSheet.winningNumbers = winningNumbers;
+
+                                await box.add(lottoSheet);
+
+                                _showSuccessToast();
+                              } else {
+                                _showFailToast();
+                              }
+
+                              setState(() {
+                                lottoURL = null;
+                              });
+                              // Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
                             },
                             child: const Text('등록하기')),
                       ],
