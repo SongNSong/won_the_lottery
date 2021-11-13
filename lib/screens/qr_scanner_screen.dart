@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:won_the_lottery/models/game.dart';
-import 'package:won_the_lottery/utilities/game_round.dart';
+import 'package:won_the_lottery/models/game_model.dart';
+import 'package:won_the_lottery/utilities/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -48,7 +49,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           SizedBox(
             width: 12.0,
           ),
-          Text("또 등록 성공"),
+          Text("로또 저장 성공"),
         ],
       ),
     );
@@ -125,19 +126,20 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   LottoSheetModel getLottoSheet(String lottoURL) {
     List<String> lottoSets = lottoURL.split("v=")[1].split("q");
-    List<Game> gameSet = [];
+    List<GameModel> gameSet = [];
     for (int i = 1; i < lottoSets.length; i++) {
       List<int> selectedNumbers = [];
       for (int j = 0; j < 6; j++) {
         int startIndex = j * 2;
         selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
       }
-      gameSet.add(Game(code: _keyList[i - 1], numbers: selectedNumbers));
+      gameSet.add(GameModel(code: _keyList[i - 1], numbers: selectedNumbers));
     }
 
     return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet, url: lottoURL);
   }
 
+  Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
 
 
   @override
@@ -166,17 +168,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                       children: [
                         ElevatedButton(
                             onPressed: () async {
-                              var box = Hive.box<LottoSheetModel>('lottoSheet');
                               LottoSheetModel lottoSheet = getLottoSheet(lottoURL!.code);
 
-                              if(box.values.where((element) => element.url == lottoURL!.code).toList().isEmpty) {
-                                GameRound thisGameRound = GameRound();
+                              if(lottoSheetBox.values.where((element) => element.url == lottoURL!.code).toList().isEmpty) {
+                                GameRoundProvider thisGameRound = GameRoundProvider();
                                 thisGameRound.updateGameRound(lottoSheet.gameRound);
-                                List<int>? winningNumbers = await thisGameRound.getWinningNumbers();
-                                lottoSheet.winningNumbers = winningNumbers;
 
-                                await box.add(lottoSheet);
-
+                                lottoSheetBox.add(lottoSheet);
+                                await getWinningNumbers(lottoSheet.gameRound);
                                 _showSuccessToast();
                               } else {
                                 _showFailToast();

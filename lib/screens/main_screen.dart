@@ -3,7 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
-import 'package:won_the_lottery/utilities/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
 import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
 import 'package:won_the_lottery/widgets/lotto_card_list.dart';
 import 'package:won_the_lottery/widgets/winning_numbers_card.dart';
@@ -18,7 +19,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  var box = Hive.box<LottoSheetModel>('lottoSheet');
+  Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
 
   @override
   void initState() {
@@ -26,10 +27,11 @@ class _MainScreenState extends State<MainScreen> {
 
     // provider에 값 초기화를 위해 사용
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      if(box.isNotEmpty) {
-        Provider.of<GameRound>(context, listen: false).updateGameRound(box.values.last.gameRound);
+      if(lottoSheetBox.isNotEmpty) {
+        Provider.of<GameRoundProvider>(context, listen: false).updateGameRound(lottoSheetBox.values.last.gameRound);
       }
     });
+    // getWinningNumbers(lottoSheetBox.values.last.gameRound);
   }
 
   @override
@@ -39,16 +41,21 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: const Text('Won the Lottery'),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: box.isEmpty
-            ? [const Text('QR을 입력해주세요.', textAlign: TextAlign.center,)]
-            : [
-                const LottoRoundWidget(),
-                const WinningNumbersCard(),
-                const LottoCardList(),
-              ],
+      body: ValueListenableBuilder(
+        valueListenable: lottoSheetBox.listenable(),
+        builder: (_, Box<LottoSheetModel> lottoBox, child) {
+         return Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           crossAxisAlignment: CrossAxisAlignment.center,
+           children: lottoSheetBox.isEmpty
+               ? [const Text('QR을 입력해주세요.', textAlign: TextAlign.center,)]
+               : [
+             const LottoRoundWidget(),
+             const WinningNumbersCard(),
+             const LottoCardList(),
+           ],
+         );
+        }
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {

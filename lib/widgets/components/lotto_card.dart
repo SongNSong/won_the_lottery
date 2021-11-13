@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:won_the_lottery/models/game.dart';
+import 'package:provider/provider.dart';
+import 'package:won_the_lottery/models/game_model.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
+import 'package:won_the_lottery/models/winning_numbers_model.dart';
+import 'package:won_the_lottery/utilities/game_round_provider.dart';
 
 class LottoCard extends StatelessWidget {
   final LottoSheetModel lottoSheet;
   final int index;
 
-  const LottoCard({Key? key, required this.index, required this.lottoSheet}) : super(key: key);
+  LottoCard({Key? key, required this.index, required this.lottoSheet}) : super(key: key);
 
-  String resultOfGame(List<int>? winningNumbers, List<int> gameNumbers) {
-    int countOfMatchNumber = 0;
-    if (winningNumbers == null) {
-      return '미추첨';
-    } else {
+  Box<WinningNumbersModel> winningNumbersBox = Hive.box<WinningNumbersModel>('winningNumbers');
+  Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
+
+  String resultOfGame(String gameRound, List<int> gameNumbers) {
+    if (winningNumbersBox.get(gameRound) != null) {
+      List<int> winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
+
+      int countOfMatchNumber = 0;
       for (int i = 0; i < winningNumbers.length - 1; i++) {
         if (gameNumbers.contains(winningNumbers[i])) {
           countOfMatchNumber++;
         }
       }
+
       switch (countOfMatchNumber) {
         case 6:
           return '1등';
@@ -31,36 +38,52 @@ class LottoCard extends StatelessWidget {
         default:
           return '낙첨';
       }
+    } else {
+      return '미추첨';
     }
   }
 
-  List<TableRow> generateGameRow(List<Game> gameSet, List<int>? winningNumbers) {
+  List<TableRow> generateGameRow(LottoSheetModel sheet) {
+    String gameRound = sheet.gameRound;
+    List<GameModel> gameSet = sheet.gameSet;
+    late List<int> winningNumbers;
+
+    if(winningNumbersBox.get(gameRound) != null) {
+      winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
+    } else {
+      winningNumbers = [];
+    }
+
     return gameSet
         .map(
-          (game) => TableRow(children: [
+          (game) =>
+          TableRow(children: [
             Center(child: Text(game.code)),
-            Center(child: Text(resultOfGame(winningNumbers, game.numbers))),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: game.numbers.map((int num) {
-                  if (winningNumbers != null) {
-                    if (winningNumbers.contains(num)) {
-                      return Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(15)),
-                        width: 30,
-                        height: 30,
-                        child: Text('$num'),
-                      );
-                    }
-                  }
-                  return Container(alignment: Alignment.center, width: 30, height: 30, child: Text('$num'));
-                }).toList(),
-              ),
+            Center(child: Text(resultOfGame(gameRound, game.numbers))),
+            Consumer<GameRoundProvider>(
+              builder: (_, gameRound, child) {
+                return Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: game.numbers.map((int num) {
+                        if (winningNumbers.contains(num)) {
+                          return Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(15)),
+                            width: 30,
+                            height: 30,
+                            child: Text('$num'),
+                          );
+                      }
+                      // }
+                      return Container(alignment: Alignment.center, width: 30, height: 30, child: Text('$num'));
+                    }).toList(),
+                  ),
+                );
+              },
             ),
           ]),
-        )
+    )
         .toList();
   }
 
@@ -68,28 +91,31 @@ class LottoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
         child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text('회차: ${lottoSheet.gameRound}'),
-            Text('판매처코드: ${lottoSheet.sellerCode}'),
-            IconButton(
-                onPressed: () {
-                  Hive.box<LottoSheetModel>('lottoSheet').deleteAt(index);
-                },
-                icon: const Icon(Icons.close))
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text('회차: ${lottoSheet.gameRound}'),
+                Text('판매처코드: ${lottoSheet.sellerCode}'),
+                IconButton(
+                    onPressed: () {
+                      lottoSheetBox.deleteAt(index);
+                      if(lottoSheetBox.isNotEmpty) {
+                        Provider.of<GameRoundProvider>(context, listen: false).updateGameRound(lottoSheetBox.values.last.gameRound);
+                      }
+                    },
+                    icon: const Icon(Icons.close))
+              ],
+            ),
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(1),
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(4),
+              },
+              children: generateGameRow(lottoSheet),
+            )
           ],
-        ),
-        Table(
-          columnWidths: const {
-            0: FlexColumnWidth(1),
-            1: FlexColumnWidth(1),
-            2: FlexColumnWidth(4),
-          },
-          children: generateGameRow(lottoSheet.gameSet, lottoSheet.winningNumbers),
-        )
-      ],
-    ));
+        ));
   }
 }

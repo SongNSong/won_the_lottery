@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/utilities/game_round.dart';
+import 'package:won_the_lottery/utilities/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 
 class LottoRoundWidget extends StatefulWidget {
@@ -17,15 +17,15 @@ class _LottoRoundWidgetState extends State<LottoRoundWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var box = Hive.box<LottoSheetModel>('lottoSheet');
+    Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
     // 회차 리스트 추출
-    for (LottoSheetModel lottoSheet in box.values) {
+    for (LottoSheetModel lottoSheet in lottoSheetBox.values) {
       {
           if (!gameRoundList.contains(lottoSheet.gameRound)) {gameRoundList.add(lottoSheet.gameRound);}
         }
     }
 
-    return Consumer<GameRound>(
+    return Consumer<GameRoundProvider>(
       builder: (_, gameRound, child) {
         return Card(
           child: Column(
