@@ -25,6 +25,7 @@ class _LottoRoundWidgetState extends State<LottoRoundWidget> {
         }
     }
 
+
     return Consumer<GameRoundProvider>(
       builder: (_, gameRound, child) {
         return Card(
@@ -35,7 +36,7 @@ class _LottoRoundWidgetState extends State<LottoRoundWidget> {
                 children: [
                   const Text('로또 6/45 제 '),
                   DropdownButton<String>(
-                    value: gameRoundList.last,
+                    value: gameRound.gameRound,
                     items: gameRoundList
                         .map((gameRound) => DropdownMenuItem<String>(child: Text(gameRound), value: gameRound))
                         .toList(),

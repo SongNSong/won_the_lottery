@@ -20,23 +20,26 @@ class _WinningNumbersCardState extends State<WinningNumbersCard> {
   Widget build(BuildContext context) {
     return Consumer<GameRoundProvider>(builder: (_, gameRound, child) {
       return FutureBuilder(
-        future: getWinningNumbers(gameRound.gameRound!),
+        future: getWinningNumbers(gameRound.gameRound),
         builder: (BuildContext context, AsyncSnapshot<List<int>> snapshot) {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text(snapshot.error.toString());
           } else {
+            if(snapshot.data!.isNotEmpty){
             return Card(
                 child: Column(
-                    children: winningNumbersBox.get(gameRound.gameRound)!.numbers.isNotEmpty
-                        ? [
-                            const Text('당첨 번호'),
-                            Text(winningNumbersBox.get(gameRound.gameRound)!.numbers.toString()),
-                          ]
-                        : [
-                          const Text("미추첨 번호입니다."),
-                    ]));
+                  children: [
+                    const Text('당첨 번호'),
+                    Text(snapshot.data.toString()),
+                  ],
+                ));
+            } else {
+              return const Card(
+                child: Text('미추첨 복권입니다.'),
+              );
+            }
           }
         },
       );

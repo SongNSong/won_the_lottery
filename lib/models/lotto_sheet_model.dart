@@ -14,8 +14,6 @@ class LottoSheetModel extends HiveObject {
   @HiveField(2)
   final List<GameModel> gameSet;
 
-  @HiveField(3)
-  final String url;
 
-  LottoSheetModel({required this.gameRound, required this.sellerCode, required this.gameSet, required this.url});
+  LottoSheetModel({required this.gameRound, required this.sellerCode, required this.gameSet});
 }

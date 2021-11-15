@@ -10,6 +10,7 @@ import 'package:won_the_lottery/utilities/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:won_the_lottery/utilities/get_lotto_sheet.dart';
 import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -25,11 +26,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   Barcode? lottoURL;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  final List<String> _keyList = ['A', 'B', 'C', 'D', 'E'];
   late FToast fToast;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     fToast = FToast();
     fToast.init(context);
@@ -54,7 +54,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       ),
     );
 
-
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
@@ -73,46 +72,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     //       );
     //     });
   }
-
-  _showFailToast() {
-    Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: Colors.redAccent,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.close),
-          SizedBox(
-            width: 12.0,
-          ),
-          Text("이미 등록된 로또입니다."),
-        ],
-      ),
-    );
-
-
-    fToast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
-    );
-
-    // Custom Toast Position
-    // fToast.showToast(
-    //     child: toast,
-    //     toastDuration: const Duration(seconds: 2),
-    //     positionedToastBuilder: (context, child) {
-    //       return Positioned(
-    //         child: child,
-    //         top: 16.0,
-    //         left: 16.0,
-    //       );
-    //     });
-  }
-
 
   @override
   void reassemble() {
@@ -124,23 +83,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     }
   }
 
-  LottoSheetModel getLottoSheet(String lottoURL) {
-    List<String> lottoSets = lottoURL.split("v=")[1].split("q");
-    List<GameModel> gameSet = [];
-    for (int i = 1; i < lottoSets.length; i++) {
-      List<int> selectedNumbers = [];
-      for (int j = 0; j < 6; j++) {
-        int startIndex = j * 2;
-        selectedNumbers.add(int.parse(lottoSets[i].substring(startIndex, startIndex + 2)));
-      }
-      gameSet.add(GameModel(code: _keyList[i - 1], numbers: selectedNumbers));
-    }
-
-    return LottoSheetModel(gameRound: lottoSets[0], sellerCode: lottoSets[lottoSets.length - 1].substring(12), gameSet: gameSet, url: lottoURL);
-  }
 
   Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
-
 
   @override
   Widget build(BuildContext context) {
@@ -170,16 +114,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                             onPressed: () async {
                               LottoSheetModel lottoSheet = getLottoSheet(lottoURL!.code);
 
-                              if(lottoSheetBox.values.where((element) => element.url == lottoURL!.code).toList().isEmpty) {
-                                GameRoundProvider thisGameRound = GameRoundProvider();
-                                thisGameRound.updateGameRound(lottoSheet.gameRound);
+                              GameRoundProvider thisGameRound = GameRoundProvider();
+                              thisGameRound.updateGameRound(lottoSheet.gameRound);
 
-                                lottoSheetBox.add(lottoSheet);
-                                await getWinningNumbers(lottoSheet.gameRound);
-                                _showSuccessToast();
-                              } else {
-                                _showFailToast();
-                              }
+                              lottoSheetBox.add(lottoSheet);
+                              await getWinningNumbers(lottoSheet.gameRound);
+                              _showSuccessToast();
 
                               setState(() {
                                 lottoURL = null;

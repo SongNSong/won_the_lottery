@@ -8,6 +8,7 @@ import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
+import 'package:won_the_lottery/utilities/get_lotto_sheet.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -15,8 +16,15 @@ void main() async {
   Hive.registerAdapter(LottoSheetModelAdapter());
   Hive.registerAdapter(WinningNumbersModelAdapter());
   await Hive.openBox<GameModel>('game');
-  await Hive.openBox<LottoSheetModel>('lottoSheet');
+  Box lottoSheetBox = await Hive.openBox<LottoSheetModel>('lottoSheet');
   await Hive.openBox<WinningNumbersModel>('winningNumbers');
+
+  // Hive.box<LottoSheetModel>('lottoSheet').clear();
+
+  await lottoSheetBox.clear();
+  await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0990q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
+  await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0980q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
+  await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=1000q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
 
   runApp(const MyApp());
 }

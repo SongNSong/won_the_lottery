@@ -4,16 +4,17 @@ import 'package:hive/hive.dart';
 import 'package:won_the_lottery/models/winning_numbers_model.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<int>> getWinningNumbers(String gameRound) async {
+Future<List<int>> getWinningNumbers(String? gameRound) async {
   Box<WinningNumbersModel> winningNumbersBox = Hive.box<WinningNumbersModel>("winningNumbers");
+  WinningNumbersModel? winningNumbers = winningNumbersBox.get(gameRound);
+  List<int> numbers = [];
 
-  if (winningNumbersBox.keys.contains(gameRound) && winningNumbersBox.get(gameRound)!.numbers == []) {
-    List<int> winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
-
-    return winningNumbers;
+  if (winningNumbers != null) {
+    bool existWinningNumbers = winningNumbers.numbers.isNotEmpty;
+    if (existWinningNumbers) {
+      numbers = winningNumbersBox.get(gameRound)!.numbers;
+    }
   } else {
-    List<int> numbers = [];
-
     http.Response response =
         await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$gameRound"));
 
@@ -32,7 +33,8 @@ Future<List<int>> getWinningNumbers(String gameRound) async {
       print(response.statusCode);
     }
 
-    winningNumbersBox.put(gameRound, WinningNumbersModel(numbers: numbers));
-    return numbers;
+    await winningNumbersBox.put(gameRound, WinningNumbersModel(numbers: numbers));
   }
+
+  return numbers;
 }
