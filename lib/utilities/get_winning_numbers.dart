@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 Future<List<int>> getWinningNumbers(String gameRound) async {
   Box<WinningNumbersModel> winningNumbersBox = Hive.box<WinningNumbersModel>("winningNumbers");
 
-  if (winningNumbersBox.keys.contains(gameRound)) {
+  if (winningNumbersBox.keys.contains(gameRound) && winningNumbersBox.get(gameRound)!.numbers == []) {
     List<int> winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
 
     return winningNumbers;
