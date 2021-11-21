@@ -8,7 +8,7 @@
 .buildlog/
 .history
 .svn/
-admob_unit_id.dart
+lib/admob_unit_id.dart
 
 # IntelliJ related
 *.iml
