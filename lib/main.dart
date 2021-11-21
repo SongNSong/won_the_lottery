@@ -9,8 +9,12 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
 import 'package:won_the_lottery/utilities/get_lotto_sheet.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
   await Hive.initFlutter();
   Hive.registerAdapter(GameModelAdapter());
   Hive.registerAdapter(LottoSheetModelAdapter());

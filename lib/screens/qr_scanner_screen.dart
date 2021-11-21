@@ -1,17 +1,29 @@
 import 'dart:developer';
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:won_the_lottery/models/game_model.dart';
+import 'package:won_the_lottery/admob_unit_id.dart';
 import 'package:won_the_lottery/utilities/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:won_the_lottery/utilities/get_lotto_sheet.dart';
 import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
+
+const Map<String, String> UNIT_ID = kReleaseMode
+    ? {
+  'ios': interstitialAdIos,
+  'android': interstitialAdAndroid,
+}
+    : {
+  'ios': 'ca-app-pub-3940256099942544/4411468910',
+  'android': 'ca-app-pub-3940256099942544/1033173712',
+};
+
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -27,12 +39,29 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late FToast fToast;
+  InterstitialAd? _interstitialAd;
+
+
 
   @override
   void initState() {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+
+    InterstitialAd.load(
+        adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
+        request: AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            // Keep a reference to the ad so you can show it later.
+            _interstitialAd = ad;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error');
+          },
+        ));
+
   }
 
   _showSuccessToast() {
@@ -94,6 +123,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushNamedAndRemoveUntil(context, MainScreen.routeName, (route) => false);
+            _interstitialAd!.show();
           },
         ),
         title: const Text('QR Scan'),
