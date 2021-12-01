@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/game_model.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/models/winning_numbers_model.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 
 class LottoCard extends StatelessWidget {
   final LottoSheetModel lottoSheet;

@@ -7,7 +7,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:won_the_lottery/admob_unit_id.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/main_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';

@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/admob_unit_id.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
 import 'package:won_the_lottery/widgets/lotto_card_list.dart';
 import 'package:won_the_lottery/widgets/winning_numbers_card.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 
 class LottoRoundWidget extends StatefulWidget {
