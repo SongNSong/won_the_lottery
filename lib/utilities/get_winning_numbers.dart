@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:hive/hive.dart';
-import 'package:won_the_lottery/models/winning_numbers_model.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:won_the_lottery/models/winning_numbers_model.dart';
+
 Future<List<int>> getWinningNumbers(String? gameRound) async {
-  Box<WinningNumbersModel> winningNumbersBox = Hive.box<WinningNumbersModel>("winningNumbers");
+  Box<WinningNumbersModel> winningNumbersBox = Hive.box<WinningNumbersModel>('winningNumbers');
   WinningNumbersModel? winningNumbers = winningNumbersBox.get(gameRound);
   List<int> numbers = [];
 
@@ -16,7 +17,7 @@ Future<List<int>> getWinningNumbers(String? gameRound) async {
     }
   } else {
     http.Response response =
-        await http.get(Uri.parse("https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$gameRound"));
+        await http.get(Uri.parse('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=$gameRound'));
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);

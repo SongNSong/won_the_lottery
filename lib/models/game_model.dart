@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part 'game_model.g.dart';
 
 @HiveType(typeId: 2)
-class GameModel extends HiveObject{
+class GameModel extends HiveObject {
   @HiveField(0)
   final String code;
 
