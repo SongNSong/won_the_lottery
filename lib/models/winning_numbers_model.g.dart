@@ -35,7 +35,5 @@ class WinningNumbersModelAdapter extends TypeAdapter<WinningNumbersModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WinningNumbersModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is WinningNumbersModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

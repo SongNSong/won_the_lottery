@@ -11,5 +11,4 @@ class GameRoundProvider extends ChangeNotifier {
     _gameRound = gameRound;
     notifyListeners();
   }
-
 }

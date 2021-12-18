@@ -16,7 +16,7 @@ footer
 
 - feat: a new feature
 - fix: a bug fix
-- docs: change to documenation
+- docs: change to documentation
 - style: formatting, missing semi colons, etc; no code change
 - refactor: refactoring production code
 - test: adding tests, refactoring test; no production code change
@@ -27,7 +27,7 @@ footer
 제목은 50자를 넘기지 않고, 문장의 끝에 마침표를 넣지 않는다. 커밋 메시지에는 과거시제를 사용하지 않고, 명령어로 작성하도록 합니다.
 
 ```text
-feat: Summarize changes in arount 50 characters or less
+feat: Summarize changes in around 50 characters or less
 ```
 
 #### 본문(Body)

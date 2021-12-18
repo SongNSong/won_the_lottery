@@ -37,8 +37,5 @@ class GameModelAdapter extends TypeAdapter<GameModel> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GameModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      identical(this, other) || other is GameModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

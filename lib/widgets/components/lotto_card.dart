@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+
 import 'package:won_the_lottery/models/game_model.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/models/winning_numbers_model.dart';
@@ -49,7 +50,7 @@ class LottoCard extends StatelessWidget {
     List<GameModel> gameSet = sheet.gameSet;
     late List<int> winningNumbers;
 
-    if(winningNumbersBox.get(gameRound) != null) {
+    if (winningNumbersBox.get(gameRound) != null) {
       winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
     } else {
       winningNumbers = [];
@@ -57,34 +58,36 @@ class LottoCard extends StatelessWidget {
 
     return gameSet
         .map(
-          (game) =>
-          TableRow(children: [
-            Center(child: Text(game.code)),
-            Center(child: Text(resultOfGame(gameRound, game.numbers))),
-            Consumer<GameRoundProvider>(
-              builder: (_, gameRound, child) {
-                return Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: game.numbers.map((int num) {
+          (game) => TableRow(
+            children: [
+              Center(child: Text(game.code)),
+              Center(child: Text(resultOfGame(gameRound, game.numbers))),
+              Consumer<GameRoundProvider>(
+                builder: (_, gameRound, child) {
+                  return Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: game.numbers.map((int num) {
                         if (winningNumbers.contains(num)) {
                           return Container(
                             alignment: Alignment.center,
-                            decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(15)),
+                            decoration:
+                                BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(15)),
                             width: 30,
                             height: 30,
                             child: Text('$num'),
                           );
-                      }
-                      // }
-                      return Container(alignment: Alignment.center, width: 30, height: 30, child: Text('$num'));
-                    }).toList(),
-                  ),
-                );
-              },
-            ),
-          ]),
-    )
+                        }
+                        // }
+                        return Container(alignment: Alignment.center, width: 30, height: 30, child: Text('$num'));
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        )
         .toList();
   }
 
@@ -92,31 +95,32 @@ class LottoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
         child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text('회차: ${lottoSheet.gameRound}'),
-                Text('판매처코드: ${lottoSheet.sellerCode}'),
-                IconButton(
-                    onPressed: () {
-                      lottoSheetBox.deleteAt(index);
-                      if(lottoSheetBox.isNotEmpty) {
-                        Provider.of<GameRoundProvider>(context, listen: false).updateGameRound(lottoSheetBox.values.last.gameRound);
-                      }
-                    },
-                    icon: const Icon(Icons.close))
-              ],
-            ),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(1),
-                1: FlexColumnWidth(1),
-                2: FlexColumnWidth(4),
-              },
-              children: generateGameRow(lottoSheet),
-            )
+            Text('회차: ${lottoSheet.gameRound}'),
+            Text('판매처코드: ${lottoSheet.sellerCode}'),
+            IconButton(
+                onPressed: () {
+                  lottoSheetBox.deleteAt(index);
+                  if (lottoSheetBox.isNotEmpty) {
+                    Provider.of<GameRoundProvider>(context, listen: false)
+                        .updateGameRound(lottoSheetBox.values.last.gameRound);
+                  }
+                },
+                icon: const Icon(Icons.close))
           ],
-        ));
+        ),
+        Table(
+          columnWidths: const {
+            0: FlexColumnWidth(1),
+            1: FlexColumnWidth(1),
+            2: FlexColumnWidth(4),
+          },
+          children: generateGameRow(lottoSheet),
+        )
+      ],
+    ));
   }
 }

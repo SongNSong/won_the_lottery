@@ -41,7 +41,5 @@ class LottoSheetModelAdapter extends TypeAdapter<LottoSheetModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LottoSheetModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is LottoSheetModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
