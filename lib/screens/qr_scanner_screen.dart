@@ -16,14 +16,13 @@ import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
 
 const Map<String, String> UNIT_ID = kReleaseMode
     ? {
-  'ios': interstitialAdIos,
-  'android': interstitialAdAndroid,
-}
+        'ios': interstitialAdIos,
+        'android': interstitialAdAndroid,
+      }
     : {
-  'ios': 'ca-app-pub-3940256099942544/4411468910',
-  'android': 'ca-app-pub-3940256099942544/1033173712',
-};
-
+        'ios': 'ca-app-pub-3940256099942544/4411468910',
+        'android': 'ca-app-pub-3940256099942544/1033173712',
+      };
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({Key? key}) : super(key: key);
@@ -41,27 +40,28 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   late FToast fToast;
   InterstitialAd? _interstitialAd;
 
-
-
   @override
   void initState() {
     super.initState();
     fToast = FToast();
     fToast.init(context);
+    _loadAdRequest();
+  }
 
+  _loadAdRequest() {
     InterstitialAd.load(
-        adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
-        request: AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (InterstitialAd ad) {
-            // Keep a reference to the ad so you can show it later.
-            _interstitialAd = ad;
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            print('InterstitialAd failed to load: $error');
-          },
-        ));
-
+      adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          // Keep a reference to the ad so you can show it later.
+          _interstitialAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
   }
 
   _showSuccessToast() {
@@ -88,18 +88,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       gravity: ToastGravity.BOTTOM,
       toastDuration: const Duration(seconds: 2),
     );
-
-    // Custom Toast Position
-    // fToast.showToast(
-    //     child: toast,
-    //     toastDuration: const Duration(seconds: 2),
-    //     positionedToastBuilder: (context, child) {
-    //       return Positioned(
-    //         child: child,
-    //         top: 16.0,
-    //         left: 16.0,
-    //       );
-    //     });
   }
 
   @override
@@ -111,7 +99,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       controller!.resumeCamera();
     }
   }
-
 
   Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
 
