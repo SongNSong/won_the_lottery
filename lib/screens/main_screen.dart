@@ -1,15 +1,27 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:won_the_lottery/models/game_model.dart';
+import 'package:won_the_lottery/admob_unit_id.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/screens/qr_scanner_screen.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
-import 'package:won_the_lottery/utilities/get_lotto_sheet.dart';
-import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
+import 'package:won_the_lottery/screens/settings_screen.dart';
 import 'package:won_the_lottery/widgets/lotto_round_widget.dart';
 import 'package:won_the_lottery/widgets/lotto_card_list.dart';
 import 'package:won_the_lottery/widgets/winning_numbers_card.dart';
+
+const Map<String, String> UNIT_ID = kReleaseMode
+    ? {
+        'ios': bannerIos,
+        'android': bannerAndroid,
+      }
+    : {
+        'ios': 'ca-app-pub-3940256099942544/2934735716',
+        'android': 'ca-app-pub-3940256099942544/6300978111',
+      };
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -22,41 +34,72 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
+  bool isSwitched = false;
 
   @override
   void initState() {
     super.initState();
 
-    // getWinningNumbers('0990');
-    // getWinningNumbers('0991');
-    // getWinningNumbers('0992');
-    // getWinningNumbers('0995');
-    // getWinningNumbers('0997');
-
     // provider에 값 초기화를 위해 사용
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       if (lottoSheetBox.isNotEmpty) {
-        // await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0991q101013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
-        // await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0992q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
-        // await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0995q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
-        // await lottoSheetBox.add(getLottoSheet('http://m.dhlottery.co.kr/?v=0997q091013293538q031216202242q151624404445q051719213234q0205142938391459131397'));
         Provider.of<GameRoundProvider>(context, listen: false).updateGameRound(lottoSheetBox.values.last.gameRound);
       }
     });
-    // getWinningNumbers(lottoSheetBox.values.last.gameRound);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
   }
 
   @override
   Widget build(BuildContext context) {
+    final BannerAd myBanner = BannerAd(
+      adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
+      size: AdSize.fullBanner,
+      request: AdRequest(),
+      listener: BannerAdListener(),
+    );
+
+    myBanner.load();
+
+    final AdWidget adWidget = AdWidget(ad: myBanner);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Won the Lottery'),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.settings),
+        //     onPressed: () {
+        //       Navigator.pushNamed(context, SettingsScreen.routeName);
+        //     },
+        //   )
+        // ],
+      ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const Text('on/off'),
+                    Switch(
+                      value: isSwitched,
+                      onChanged: (value) {
+                        setState(() {
+                          isSwitched = value;
+                        });
+                      },
+                      activeTrackColor: Colors.grey.shade300,
+                      activeColor: Colors.blueAccent,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: ValueListenableBuilder(
           valueListenable: lottoSheetBox.listenable(),
@@ -75,6 +118,12 @@ class _MainScreenState extends State<MainScreen> {
                       const LottoRoundWidget(),
                       const WinningNumbersCard(),
                       const LottoCardList(),
+                      Container(
+                        alignment: Alignment.center,
+                        child: adWidget,
+                        width: myBanner.size.width.toDouble(),
+                        height: myBanner.size.height.toDouble(),
+                      ),
                     ],
             );
           }),

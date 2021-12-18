@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/winning_numbers_model.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 import 'package:won_the_lottery/utilities/get_winning_numbers.dart';
 
 class WinningNumbersCard extends StatefulWidget {

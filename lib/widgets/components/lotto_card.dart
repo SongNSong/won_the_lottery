@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:won_the_lottery/models/game_model.dart';
 import 'package:won_the_lottery/models/lotto_sheet_model.dart';
 import 'package:won_the_lottery/models/winning_numbers_model.dart';
-import 'package:won_the_lottery/utilities/game_round_provider.dart';
+import 'package:won_the_lottery/providers/game_round_provider.dart';
 
 class LottoCard extends StatelessWidget {
   final LottoSheetModel lottoSheet;
@@ -16,8 +16,9 @@ class LottoCard extends StatelessWidget {
   Box<LottoSheetModel> lottoSheetBox = Hive.box<LottoSheetModel>('lottoSheet');
 
   String resultOfGame(String gameRound, List<int> gameNumbers) {
-    if (winningNumbersBox.get(gameRound) != null) {
-      List<int> winningNumbers = winningNumbersBox.get(gameRound)!.numbers;
+    WinningNumbersModel? sheet = winningNumbersBox.get(gameRound);
+    if (sheet != null) {
+      List<int> winningNumbers = sheet.numbers;
 
       int countOfMatchNumber = 0;
       for (int i = 0; i < winningNumbers.length - 1; i++) {
